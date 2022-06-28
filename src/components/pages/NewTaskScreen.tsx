@@ -1,35 +1,25 @@
-import React, { ChangeEvent, useState } from 'react'; 
+import { ChangeEvent, FormEvent, useState } from 'react'; 
 
-import { Box, Button, Grid, Input, TextField } from '@mui/material';
-import moment, { Moment } from 'moment';
+import { Box, Button, FormControlLabel, Grid, TextField, Checkbox } from '@mui/material';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterMoment } from '@mui/x-date-pickers/AdapterMoment';
 import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
+import { useSnackbar } from 'notistack';
+import moment from 'moment';
 
+import { useAppDispatch } from '../../hooks';
+import { addTask } from '../../store/slices';
+import { ITask } from '../../interfaces/task';
 
-
-import { useForm } from 'react-hook-form';
-
-
-type FormData = {
-  descripcion : string;
-  fechaCreacion: Moment;
-  vigente : boolean;
-}
-
-const taskInitialData = {
-  descripcion : '',
-  fechaCreacion: moment.now(),
-  vigente : true,
-}
 
 
 export const NewTaskScreen = () => {
 
+  const { enqueueSnackbar } = useSnackbar();
+  const dispatch = useAppDispatch();
 
   const [valueDescription, setValueDescription] = useState<string | null>('');
   const [touched, setTouched] = useState(false);
-
   const [valueDate, setValueDate] = useState<Date | null>( new Date(moment.now()) );
   const [valueVigente, setVigente] = useState<boolean | null>(true);
 
@@ -37,17 +27,61 @@ export const NewTaskScreen = () => {
     setValueDate(newValue);
   };
 
-  const handleVigenteChange = (newValue: boolean | null) => {
-    setVigente(newValue);
+  const handleVigenteChange = (event: ChangeEvent<HTMLInputElement>) => {
+    setVigente(event.target.checked);
   };
 
   const handleDescriptionChange = (event: ChangeEvent<HTMLInputElement>) => {
     setValueDescription(event.target.value);
   };
 
-  const handleSubmit = (  ) =>{
-    // console.log(data);
-    // reset(taskInitialData);
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) =>{
+    e.preventDefault();
+    if(valueDescription ==='') {
+      return enqueueSnackbar('Debe ingresar una descripcion', { 
+        variant: 'error',
+        autoHideDuration: 2000,
+        anchorOrigin: {
+          vertical: 'top',
+          horizontal: 'right',
+        } 
+      });
+    } 
+
+    const newTask: ITask = {
+      descripcion : (valueDescription) ? valueDescription : '',
+      fechaCreacion: moment(valueDate).format('YYYY-MM-DD HH:mm:ss'),
+      vigente : (valueVigente) ? valueVigente : false,
+    }
+
+    try {
+      const resp = await dispatch(addTask(newTask));
+
+      if(resp.meta.requestStatus === 'fulfilled') {
+        enqueueSnackbar('Tarea agregada correctamente', { 
+          variant: 'success',
+          autoHideDuration: 2000,
+          anchorOrigin: {
+            vertical: 'top',
+            horizontal: 'right',
+          } 
+        });
+      } else {
+        enqueueSnackbar('Error en la comunicacion con backend', { 
+          variant: 'error',
+          autoHideDuration: 2000,
+          anchorOrigin: {
+            vertical: 'top',
+            horizontal: 'right',
+          } 
+        });
+      }
+
+    } catch (e:any) {
+      console.log('error', e);
+    }
+      
+
   }
 
 
@@ -86,10 +120,11 @@ export const NewTaskScreen = () => {
               
             </Grid>  
             <Grid item xs={6} sm={4}>
-              <TextField
+              <FormControlLabel
+                control={ 
+                  <Checkbox checked={ valueVigente! } onChange={ handleVigenteChange } name='vigente' />
+                }
                 label='Vigente'
-                variant='filled'
-                fullWidth
               />
             </Grid>    
           </Grid>

@@ -30,3 +30,5 @@ export const fetchAxios = async (endpoint: string, body: any ='', method: string
          }
     }
 }
+
+export default fetchAxios;

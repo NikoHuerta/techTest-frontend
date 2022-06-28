@@ -1,17 +1,19 @@
-import { Button, Chip, Grid } from '@mui/material';
+import { Button, Chip, Grid, Tooltip } from '@mui/material';
 import { DataGrid, GridColDef, GridValueGetterParams } from '@mui/x-data-grid';
 import ModeEditOutlineIcon from '@mui/icons-material/ModeEditOutline';
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 import moment from 'moment';
+import { useSnackbar } from 'notistack';
 
 import { useAppDispatch, useAppSelector } from '../../hooks';
-import { setActiveTask, setNavigationStatus } from '../../store/slices';
+import { setActiveTask, setNavigationStatus, removeTask } from '../../store/slices';
 
 
 export const ViewTaskScreen = () => {
 
   const dataRows = useAppSelector(state => state.task.tasks);
   const dispatch = useAppDispatch();
+  const { enqueueSnackbar } = useSnackbar();
 
   const rows = dataRows.map( (task, index) => {
     return {
@@ -26,7 +28,7 @@ export const ViewTaskScreen = () => {
 
   const columns: GridColDef[] = [
       { field: 'num', headerName: 'Num', width: 100, sortable: true },
-      { field: 'descripcion', headerName: 'Descripcion', width: 200, sortable: true },
+      { field: 'descripcion', headerName: 'Descripcion', width: 400, sortable: true },
       { field: 'fechaCreacion', headerName: 'Fecha de Creacion', width: 300, sortable: true },
       { 
         field: 'vigente', 
@@ -45,18 +47,23 @@ export const ViewTaskScreen = () => {
         renderCell: ({ row }: GridValueGetterParams) => {
           return (
             <>
-              <Button
-                color='primary'
-                onClick={() =>  { handleEdit(row.objectId) } }
-              >
-                <ModeEditOutlineIcon />
-              </Button>
-              <Button
-                color='primary'
-                onClick={() =>  { handleDelete(row.objectId) } }
-              >
-                <DeleteOutlineIcon />
-              </Button>
+              <Tooltip title='Editar'>
+                <Button
+                    color='primary'
+                    onClick={() =>  { handleEdit(row.objectId) } }
+                  >
+                    <ModeEditOutlineIcon />
+                </Button>
+              </Tooltip>
+
+              <Tooltip title='Eliminar'>
+                <Button
+                  color='primary'
+                  onClick={() =>  { handleDelete(row.objectId) } }
+                >
+                  <DeleteOutlineIcon />
+                </Button>
+              </Tooltip>
             </>
           )
         },
@@ -66,13 +73,36 @@ export const ViewTaskScreen = () => {
 
   const handleEdit = (taskObjectId: string) => {
     console.log('Editar tarea: ', taskObjectId);
-    dispatch(setActiveTask( taskObjectId ));
-    dispatch(setNavigationStatus({ status: 'editTask' }));
+    dispatch( setActiveTask( taskObjectId ) );
+    dispatch( setNavigationStatus({ status: 'editTask' }) );
     
   }
-  const handleDelete = (taskObjectId: string) => {
-    console.log('Eliminar tarea id: ', taskObjectId);
-    dispatch(setActiveTask( taskObjectId ));
+  const handleDelete = async (taskObjectId: string) => {
+
+    try {
+      const resp = await dispatch( removeTask( taskObjectId ) );
+      if(resp.meta.requestStatus === 'fulfilled') {
+        enqueueSnackbar('Tarea eliminada correctamente', {
+          variant: 'success',
+          autoHideDuration: 2000,
+          anchorOrigin: {
+            vertical: 'top',
+            horizontal: 'right',
+          }
+        });
+      } else {
+        enqueueSnackbar('Error en la comunicacion con backend', {
+          variant: 'error',
+          autoHideDuration: 2000,
+          anchorOrigin: {
+            vertical: 'top',
+            horizontal: 'right',
+          }
+        });
+      }
+    } catch (e: any) {
+      console.log('error', e);
+    }
   }
 
   

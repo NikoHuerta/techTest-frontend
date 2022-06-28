@@ -39,7 +39,7 @@ export const addTask = createAsyncThunk(
 export const removeTask = createAsyncThunk(
     'task/removeTask',
     async (id: string) => {
-        const response = await fetchAxios(`task/${ id }`, undefined, 'DELETE') as AxiosResponse;
+        const response = await fetchAxios(`task/${ id }`, {}, 'DELETE') as AxiosResponse;
         const { data: body } = response;
         return body.task;
     }
