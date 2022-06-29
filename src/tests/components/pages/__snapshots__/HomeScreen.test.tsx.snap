@@ -1,0 +1,29 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Pruebas en HomeScreen.tsx Debe de renderizarse correctamente 1`] = `
+<DocumentFragment>
+  <h1>
+    Home Screen
+  </h1>
+  <h6
+    class="MuiTypography-root MuiTypography-subtitle1 MuiTypography-gutterBottom css-8paf5q-MuiTypography-root"
+  >
+    App encargada de manejar tareas.
+  </h6>
+  <h6
+    class="MuiTypography-root MuiTypography-subtitle2 MuiTypography-gutterBottom css-160tic2-MuiTypography-root"
+  >
+    Para ver las tareas, haga click en el boton "Ver Tareas".
+  </h6>
+  <h6
+    class="MuiTypography-root MuiTypography-subtitle2 MuiTypography-gutterBottom css-1oxen2w-MuiTypography-root"
+  >
+    Para agregar una nueva tarea, haga click en el boton "Nueva Tarea".
+  </h6>
+  <h6
+    class="MuiTypography-root MuiTypography-subtitle2 MuiTypography-gutterBottom css-1oxen2w-MuiTypography-root"
+  >
+    En la visualizacion usted podra Editar y Borrar una tarea respectiva.
+  </h6>
+</DocumentFragment>
+`;
