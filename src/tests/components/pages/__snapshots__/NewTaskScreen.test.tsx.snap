@@ -72,7 +72,7 @@ exports[`Pruebas en NewTaskScreen.tsx Debe de renderizarse correctamente 1`] = `
               name="fechaCreacion"
               readonly=""
               type="text"
-              value="06/28/2022 09:32 PM"
+              value="06/28/2022 09:39 PM"
             />
           </div>
         </div>
